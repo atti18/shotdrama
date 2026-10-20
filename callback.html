@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shot Drama · Connected</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><div class="wrap"><nav>
+  <a class="logo" href="./">Shot<span>Drama</span></a>
+  <div class="links"><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a></div>
+</nav></div></header>
+
+<main><div class="wrap">
+  <h1 id="title">Connecting…</h1>
+  <p id="msg" class="muted"></p>
+
+  <div class="card" id="codeCard" hidden>
+    <strong>Authorization code</strong>
+    <p class="muted">This code expires in a few minutes. It is sent to the Shot Drama server to finish connecting your account.</p>
+    <span class="code" id="code"></span>
+    <button class="btn" id="sendBtn">Finish on Shot Drama server</button>
+    <button class="btn secondary" id="copyBtn">Copy code</button>
+  </div>
+</div></main>
+
+<footer><div class="wrap">
+  <a href="terms.html">Terms of Service</a><a href="privacy.html">Privacy Policy</a>
+</div></footer>
+
+<script>
+/* ===== 설정 =====
+   GX10 대시보드의 로컬 콜백 주소. 같은 집/사무실 네트워크의 브라우저에서
+   버튼을 누르면 code를 그대로 GX10으로 넘겨 토큰 교환을 끝냅니다. */
+const LOCAL_CALLBACK = "http://192.168.0.100:8080/tiktok/callback";
+/* ================ */
+
+const q = new URLSearchParams(location.search);
+const code = q.get("code"), state = q.get("state"), err = q.get("error");
+const $ = (id) => document.getElementById(id);
+
+let saved = null;
+try { saved = sessionStorage.getItem("sd_state"); } catch (_) {}
+
+if (err) {
+  $("title").textContent = "Connection cancelled";
+  $("msg").textContent = q.get("error_description") || err;
+} else if (!code) {
+  $("title").textContent = "No authorization code";
+  $("msg").textContent = "Please start again from the home page.";
+} else if (saved && saved !== state) {
+  $("title").textContent = "Security check failed";
+  $("msg").textContent = "State mismatch. Please start again from the home page.";
+} else {
+  $("title").textContent = "TikTok account authorized";
+  $("msg").textContent = "One more step to finish connecting.";
+  $("code").textContent = code;
+  $("codeCard").hidden = false;
+  $("sendBtn").onclick = () => {
+    const u = new URL(LOCAL_CALLBACK);
+    u.searchParams.set("code", code);
+    if (state) u.searchParams.set("state", state);
+    location.href = u.toString();
+  };
+  $("copyBtn").onclick = async () => {
+    try { await navigator.clipboard.writeText(code); $("copyBtn").textContent = "Copied"; } catch (_) {}
+  };
+}
+</script>
+</body>
+</html>

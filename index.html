@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shot Drama</title>
+<meta name="description" content="Shot Drama publishes original short-form drama series to TikTok.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><div class="wrap"><nav>
+  <a class="logo" href="./">Shot<span>Drama</span></a>
+  <div class="links"><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a></div>
+</nav></div></header>
+
+<main><div class="wrap">
+  <h1>Original short-form dramas, published to TikTok.</h1>
+  <p>Shot Drama is a small creator studio tool. We produce our own original short drama episodes and use Shot Drama to review, schedule and publish them to our TikTok account.</p>
+
+  <div class="card">
+    <h2 style="margin-top:0">How it works</h2>
+    <div class="grid">
+      <div><strong>1. Connect</strong><p class="muted">The creator signs in with TikTok (Login Kit) and authorizes the account.</p></div>
+      <div><strong>2. Review</strong><p class="muted">Finished episodes appear in a queue with a preview, title and caption.</p></div>
+      <div><strong>3. Choose settings</strong><p class="muted">The creator picks privacy level, comment / duet / stitch options and content disclosure.</p></div>
+      <div><strong>4. Post</strong><p class="muted">Nothing is posted until the creator clicks "Post to TikTok" or sends it to drafts.</p></div>
+    </div>
+  </div>
+
+  <a class="btn" href="#" id="connectBtn">Continue with TikTok</a>
+  <p class="muted" id="connectNote"></p>
+</div></main>
+
+<footer><div class="wrap">
+  <a href="terms.html">Terms of Service</a><a href="privacy.html">Privacy Policy</a>
+  <div style="margin-top:8px">© 2026 Shot Drama · Contact: <a href="mailto:CONTACT_EMAIL">CONTACT_EMAIL</a></div>
+</div></footer>
+
+<script>
+/* ===== 설정 ===== */
+const CLIENT_KEY   = "YOUR_CLIENT_KEY";          // 개발자센터 Client key
+const REDIRECT_URI = "https://atti18.github.io/shotdrama/callback.html";
+const SCOPES       = "user.info.basic,video.upload,video.publish";
+/* ================ */
+
+document.getElementById("connectBtn").addEventListener("click", (e) => {
+  e.preventDefault();
+  if (CLIENT_KEY.startsWith("YOUR_")) {
+    document.getElementById("connectNote").textContent = "Client key not configured yet.";
+    return;
+  }
+  const state = crypto.getRandomValues(new Uint32Array(4)).join("-");
+  try { sessionStorage.setItem("sd_state", state); } catch (_) {}
+  const url = new URL("https://www.tiktok.com/v2/auth/authorize/");
+  url.search = new URLSearchParams({
+    client_key: CLIENT_KEY, response_type: "code",
+    scope: SCOPES, redirect_uri: REDIRECT_URI, state
+  });
+  location.href = url.toString();
+});
+</script>
+</body>
+</html>
